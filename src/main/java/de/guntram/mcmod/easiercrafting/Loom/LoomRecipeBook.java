@@ -78,17 +78,17 @@ public class LoomRecipeBook extends RecipeBook {
     public void renderSingleRecipeOutput(DrawContext context, TextRenderer fontRenderer,
             ItemStack items, int x, int y) {
 
-        MatrixStack stack = RenderSystem.getModelViewStack();
-        stack.push();
-        stack.scale(1.5f, 1.5f, 1.5f);
-        RenderSystem.applyModelViewMatrix();
-        
-        context.drawItem(items, x*2/3, y*2/3);
-        
-        stack.pop();
-        RenderSystem.applyModelViewMatrix();
-        
-        context.drawItemInSlot(fontRenderer, items, x, y);
+//        MatrixStack stack = RenderSystem.getModelViewStack();
+//        stack.push();
+//        stack.scale(1.5f, 1.5f, 1.5f);
+//        RenderSystem.applyModelViewMatrix();
+//
+//        context.drawItem(items, x*2/3, y*2/3);
+//
+//        stack.pop();
+//        RenderSystem.applyModelViewMatrix();
+//
+//        context.drawItemInSlot(fontRenderer, items, x, y);
     }
     
     @Override
@@ -117,7 +117,7 @@ public class LoomRecipeBook extends RecipeBook {
                 @Override
                 public void runWithInfo(Integer i) {
                     LoomStep step = recipe.getStep(i);
-                    BannerPattern pattern = BannerPattern.byId(step.pattern).value();
+//                    BannerPattern pattern = BannerPattern.byId(step.pattern).value();
                     if (pattern == null) {
                         LOGGER.warn("no BannerPattern found for "+step.pattern);
                         DelayedSlotClickQueue.clear();
@@ -140,17 +140,17 @@ public class LoomRecipeBook extends RecipeBook {
                         MinecraftClient.getInstance().interactionManager
                                 .clickButton((screen.getScreenHandler()).syncId, pattern.ordinal());// click loom button
                     } else */ {
-                        Item item = bannerPatternItemFromId(pattern.getId());
-                        if (item == null) {
-                            LOGGER.warn("Don't know which pattern to use for "+pattern.getId());
-                            DelayedSlotClickQueue.clear();
-                            return;
-                        }
-                        if ((patternSlot = findItemSlot(item))==-1) {
-                            LOGGER.warn("Did not find "+item.getTranslationKey()+" in inventory");
-                            DelayedSlotClickQueue.clear();
-                            return;
-                        }
+//                        Item item = bannerPatternItemFromId(pattern.getId());
+//                        if (item == null) {
+//                            LOGGER.warn("Don't know which pattern to use for "+pattern.getId());
+//                            DelayedSlotClickQueue.clear();
+//                            return;
+//                        }
+//                        if ((patternSlot = findItemSlot(item))==-1) {
+//                            LOGGER.warn("Did not find "+item.getTranslationKey()+" in inventory");
+//                            DelayedSlotClickQueue.clear();
+//                            return;
+//                        }
                         transfer(patternSlot, 2, 1);
                     }
 
@@ -203,11 +203,11 @@ public class LoomRecipeBook extends RecipeBook {
             if (slot.getStack().getItem() != blankBanner.getItem()) {
                 continue;
             }
-            NbtCompound cTag = slot.getStack().getOrCreateSubNbt("BlockEntityTag");
-            if (!cTag.contains("Patterns", 9)
-            ||  cTag.getList("Patterns", 10).isEmpty()) {
-                return i+firstInventorySlotNo;
-            }
+//            NbtCompound cTag = slot.getStack().getOrCreateSubNbt("BlockEntityTag");
+//            if (!cTag.contains("Patterns", 9)
+//            ||  cTag.getList("Patterns", 10).isEmpty()) {
+//                return i+firstInventorySlotNo;
+//            }
         }
         return -1;
     }

@@ -12,6 +12,7 @@ import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
@@ -40,7 +41,7 @@ public class InventoryGeneratedRecipe<C extends Inventory> implements Recipe<C> 
     }
 
     @Override
-    public ItemStack craft(C inv, DynamicRegistryManager registryManager) {
+    public ItemStack craft(C inventory, RegistryWrapper.WrapperLookup lookup) {
         return result;
     }
 
@@ -50,7 +51,7 @@ public class InventoryGeneratedRecipe<C extends Inventory> implements Recipe<C> 
     }
 
     @Override
-    public ItemStack getResult(DynamicRegistryManager registryManager) {
+    public ItemStack getResult(RegistryWrapper.WrapperLookup registriesLookup) {
         return result;
     }
 

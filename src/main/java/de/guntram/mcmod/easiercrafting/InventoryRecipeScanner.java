@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import net.minecraft.block.Block;
 import net.minecraft.block.ShulkerBoxBlock;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -18,8 +20,8 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionUtil;
 import net.minecraft.recipe.Recipe;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
@@ -61,15 +63,14 @@ public class InventoryRecipeScanner {
             ItemStack stack=invitem.getStack();
             Item item = stack.getItem();
 
-            if (item.isDamageable()&& stack.isDamaged()) {
-                NbtList enchantments = stack.getEnchantments();
-                if (enchantments.size() <= ConfigurationHandler.getMaxEnchantsAllowedForRepair()) {
-                    Integer previous=hasRepairable.get(item);
-                    hasRepairable.put(item, previous == null ? 1 : previous+1);
+            if (stack.isDamaged()) {
+                var enchantments = stack.getEnchantments();
+                if (enchantments.getSize() <= ConfigurationHandler.getMaxEnchantsAllowedForRepair()) {
+                    hasRepairable.compute(item, (k, previous) -> previous == null ? 1 : previous + 1);
                 }
             }
             else if (item == Items.LINGERING_POTION) {
-                availablePotions.put(PotionUtil.getPotion(stack), i);
+                availablePotions.put(getPotion(stack), i);
             }
             else if (stack.hasEnchantments()) {
                 continue;
@@ -150,8 +151,8 @@ public class InventoryRecipeScanner {
                 //System.out.println("Potion "+type.getNamePrefixed("?")+" at "+availablePotions.get(type));
                 ItemStack potion = inventory.getSlot(firstInventorySlotNo+availablePotions.get(type)).getStack();
                 ItemStack resultArrow = new ItemStack(Items.TIPPED_ARROW, 8);
-                PotionUtil.setPotion(resultArrow, PotionUtil.getPotion(potion));
-                PotionUtil.setCustomPotionEffects(resultArrow, PotionUtil.getPotionEffects(potion));
+//                PotionUtil.setPotion(resultArrow, PotionUtil.getPotion(potion));
+//                PotionUtil.setCustomPotionEffects(resultArrow, PotionUtil.getPotionEffects(potion));
 
                 result.add(new InventoryGeneratedRecipe(
                         resultArrow,              // result
@@ -164,25 +165,26 @@ public class InventoryRecipeScanner {
 
         //System.out.println("Paper: "+hasPaper);
         //System.out.println("Gunpowder: "+availableGunPowder);
-
-        if (hasPaper && availableGunPowder > 0) {
-            ItemStack paper=new ItemStack(Items.PAPER);
-
-            for (int power=1; power<=3; power++) {
-                if (availableGunPowder>=power) {
-                    ItemStack resultItem = new ItemStack(Items.FIREWORK_ROCKET, 3);
-                    NbtCompound nbttagcompound = resultItem.getOrCreateSubNbt("Fireworks");
-                    nbttagcompound.putByte("Flight", (byte)power);
-                    resultItem.setCustomName(Text.literal("Strength "+power));
-
-                    ItemStack[] gunPowder = new ItemStack[power];
-                    for (int k=0; k<power; k++)
-                        gunPowder[k]=new ItemStack(Items.GUNPOWDER);
-                    //System.out.println("adding fireworks with "+power+" powder");
-                    result.add(new InventoryGeneratedRecipe(resultItem, paper, gunPowder));
-                }
-            }
-        }
+// TODO fix voor fire rockets
+//        if (hasPaper && availableGunPowder > 0) {
+//            ItemStack paper=new ItemStack(Items.PAPER);
+//
+//            for (int power=1; power<=3; power++) {
+//                if (availableGunPowder>=power) {
+////                    ItemStack resultItem = new ItemStack(Items.FIREWORK_ROCKET, 3);
+////                    resultItem.getFrame().writeCustomDataToNbt(new NbtCompound().get("Fireworks"));
+////                    NbtCompound nbttagcompound = resultItem.getFrame().writeNbt(NbtCompound.); getOrCreateSubNbt("Fireworks");
+////                    nbttagcompound.putByte("Flight", (byte)power);
+////                    resultItem.setCustomName(Text.literal("Strength "+power));
+//
+//                    ItemStack[] gunPowder = new ItemStack[power];
+//                    for (int k=0; k<power; k++)
+//                        gunPowder[k]=new ItemStack(Items.GUNPOWDER);
+//                    //System.out.println("adding fireworks with "+power+" powder");
+//                    result.add(new InventoryGeneratedRecipe(resultItem, paper, gunPowder));
+//                }
+//            }
+//        }
         
         for (Item item:hasRepairable.keySet()) {
             LOGGER.debug("repairable "+item.getTranslationKey()+": "+hasRepairable.get(item));
@@ -192,5 +194,9 @@ public class InventoryRecipeScanner {
 
         //System.out.println("returning "+result.size()+" custom recipes");
         return result;
+    }
+
+    private static Potion getPotion(ItemStack stack) {
+        return stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT).potion().map(RegistryEntry::value).orElse(null);
     }
 }

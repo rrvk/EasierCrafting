@@ -173,49 +173,49 @@ public class ExtendedGuiLoom extends LoomScreen implements SlotClickAccepter {
         if (!(banners.getItem() instanceof BannerItem)) {
             return;
         }
-        NbtCompound tag = banners.getSubNbt("BlockEntityTag");
-        if (tag == null) {
-            return;
-        }
-        NbtList patterns = tag.getList("Patterns", 10);
-        if (patterns == null) {
-            return;
-        }
-        LoomRecipe recipe = new LoomRecipe(loomRecipeName);
-        int[] colorMap = new int[patterns.size()+1];
-        colorMap[0]=((BannerItem)banners.getItem()).getColor().getId();
-        int colorMapUsed = 1;
-        recipe.addStep(new LoomStep("bannerbase", 'A'));
-
-        for (int i=0; i<patterns.size(); i++) {
-            NbtCompound patternTag = (NbtCompound) patterns.get(i);
-            String stepName = patternTag.getString("Pattern");
-            int stepColor = patternTag.getInt("Color");
-            int colorMapIndex = -1;
-            for (int j=0; j<colorMapUsed; j++) {
-                if (colorMap[j] == stepColor) {
-                    colorMapIndex = j;
-                    break;
-                }
-            }
-            if (colorMapIndex == -1) {
-                colorMapIndex = colorMapUsed;
-                colorMap[colorMapUsed++]=stepColor;
-            }
-            recipe.addStep(new LoomStep(stepName, (char) ('A'+colorMapIndex)));
-        }
-        
-        String path = LoomRecipeRegistry.getRecipeCollectionPath()+File.separator+loomRecipeName+".lr";
-        try {
-            Files.write(Paths.get(path), recipe.toSaveString().getBytes());
-            LoomRecipeRegistry.registerRecipe(recipe);
-            // System.out.println(recipe.toSaveString());
-            saveName.setText("");
-            recipeBook.updateRecipes();
-            recipeBook.updatePatternMatch();
-        } catch (IOException ex) {
-            LOGGER.warn(ex);
-        }
+//        NbtCompound tag = banners.getSubNbt("BlockEntityTag");
+//        if (tag == null) {
+//            return;
+//        } // TODO fix voor banners
+//        NbtList patterns = tag.getList("Patterns", 10);
+//        if (patterns == null) {
+//            return;
+//        }
+////        LoomRecipe recipe = new LoomRecipe(loomRecipeName);
+////        int[] colorMap = new int[patterns.size()+1];
+////        colorMap[0]=((BannerItem)banners.getItem()).getColor().getId();
+////        int colorMapUsed = 1;
+////        recipe.addStep(new LoomStep("bannerbase", 'A'));
+////
+////        for (int i=0; i<patterns.size(); i++) {
+////            NbtCompound patternTag = (NbtCompound) patterns.get(i);
+////            String stepName = patternTag.getString("Pattern");
+////            int stepColor = patternTag.getInt("Color");
+////            int colorMapIndex = -1;
+////            for (int j=0; j<colorMapUsed; j++) {
+////                if (colorMap[j] == stepColor) {
+////                    colorMapIndex = j;
+////                    break;
+////                }
+////            }
+////            if (colorMapIndex == -1) {
+////                colorMapIndex = colorMapUsed;
+////                colorMap[colorMapUsed++]=stepColor;
+////            }
+////            recipe.addStep(new LoomStep(stepName, (char) ('A'+colorMapIndex)));
+////        }
+//
+//        String path = LoomRecipeRegistry.getRecipeCollectionPath()+File.separator+loomRecipeName+".lr";
+//        try {
+//            Files.write(Paths.get(path), recipe.toSaveString().getBytes());
+//            LoomRecipeRegistry.registerRecipe(recipe);
+//            // System.out.println(recipe.toSaveString());
+//            saveName.setText("");
+//            recipeBook.updateRecipes();
+//            recipeBook.updatePatternMatch();
+//        } catch (IOException ex) {
+//            LOGGER.warn(ex);
+//        }
     }
     
     private void  colorButtonPressed(int index) {

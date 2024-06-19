@@ -1,12 +1,8 @@
 package de.guntram.mcmod.easiercrafting;
 
 import de.guntram.mcmod.easiercrafting.Loom.LoomRecipe;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeMap;
+
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -24,8 +20,9 @@ import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
-import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.resource.language.I18n;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
@@ -33,7 +30,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionUtil;
 import net.minecraft.potion.Potions;
 import net.minecraft.recipe.CuttingRecipe;
 import net.minecraft.recipe.Ingredient;
@@ -42,6 +38,7 @@ import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.ShapedRecipe;
 import net.minecraft.recipe.ShapelessRecipe;
 import net.minecraft.recipe.StonecuttingRecipe;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.StonecutterScreenHandler;
 import net.minecraft.screen.slot.Slot;
@@ -54,8 +51,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
-
-import static com.mojang.logging.LogUtils.getLogger;
 
 public class RecipeBook {
     
@@ -116,8 +111,8 @@ public class RecipeBook {
             wantedRecipeType = RecipeType.STONECUTTING;
         } else if (screen instanceof ExtendedGuiCrafting || screen instanceof ExtendedGuiInventory) {
             wantedRecipeType = RecipeType.CRAFTING;
-        } else if (screen instanceof ExtendedGuiBrewingStand) {
-            wantedRecipeType = BrewingRecipe.recipeType;
+//        } else if (screen instanceof ExtendedGuiBrewingStand) {
+//            wantedRecipeType = BrewingRecipe.recipeType;
         } else {
             wantedRecipeType = null;        // for example with brewing stand
         }
@@ -327,52 +322,50 @@ public class RecipeBook {
     public void updateRecipes() {
         ScreenHandler inventory = screen.getScreenHandler();
         List<Recipe<?>> recipes = new ArrayList<>();
-        if (wantedRecipeType == BrewingRecipe.recipeType) {
-            Level level = Level.DEBUG;
-            LOGGER.log(level, "recipebook: size= "+inventory.slots.size());
-
-            List<BrewingRecipe> potionRecipes = BrewingRecipeRegistryCache.registeredPotionRecipes();
-            Set<BrewingRecipe<?>> possiblePotionRecipes = new HashSet<>();
-            List<BrewingRecipe> itemRecipes = BrewingRecipeRegistryCache.registeredItemRecipes();
-            Set<BrewingRecipe<?>> possibleItemRecipes = new HashSet<>();
-            for (int i=0; i<inventory.slots.size(); i++) {
-                // This loop also looks at the items in the brewing stand, which is fine!
-                ItemStack stack=inventory.getSlot(i).getStack();
-                Potion potionType = PotionUtil.getPotion(stack);
-                if (!stack.isEmpty() && potionType != Potions.EMPTY) {
-                    BrewingRecipe newRecipe;
-                    LOGGER.log(level, "slot "+i+" has "+stack.getCount()+" of "+stack.getItem().getName().getString() + " potion type "+potionType.finishTranslationKey(""));
-                    for (BrewingRecipe br: itemRecipes) {
-                        if (br.getInputPotion().getItem() == stack.getItem()) {
-                            // This potion item can be converted to a different item.
-                            // Ignore whether or not we have the ingredient, 
-                            // this will be taken care of in the same way as other recipes
-
-                            ItemStack input  = new ItemStack(br.getInputPotion().getItem()); PotionUtil.setPotion(input, potionType);
-                            ItemStack output = new ItemStack(br.getResult(null).getItem()); PotionUtil.setPotion(output, potionType);
-                            possibleItemRecipes.add(newRecipe = new BrewingRecipe(false, input, br.getIngredient(), output));
-                            LOGGER.log(level, "adding recipe "+newRecipe.toString());
-                        }
-                    }
-                    for (BrewingRecipe br: potionRecipes) {
-                        if (PotionUtil.getPotion(br.getInputPotion()) == potionType) {
-                            ItemStack input = new ItemStack(stack.getItem()); PotionUtil.setPotion(input, potionType);
-                            ItemStack output = new ItemStack(stack.getItem()); PotionUtil.setPotion(output, PotionUtil.getPotion(br.getResult(null)));
-                            possiblePotionRecipes.add(newRecipe = new BrewingRecipe(true, input, br.getIngredient(), output));
-                            LOGGER.log(level, "adding recipe "+newRecipe.toString());
-                        }
-                    }
-                }
-            }
-            recipes.addAll(possibleItemRecipes);
-            recipes.addAll(possiblePotionRecipes);
-        } else {
+//        if (wantedRecipeType == BrewingRecipe.recipeType) {
+//            Level level = Level.DEBUG;
+//            LOGGER.log(level, "recipebook: size= "+inventory.slots.size());
+//
+//            List<BrewingRecipe> potionRecipes = BrewingRecipeRegistryCache.registeredPotionRecipes();
+//            Set<BrewingRecipe<?>> possiblePotionRecipes = new HashSet<>();
+//            List<BrewingRecipe> itemRecipes = BrewingRecipeRegistryCache.registeredItemRecipes();
+//            Set<BrewingRecipe<?>> possibleItemRecipes = new HashSet<>();
+//            for (int i=0; i<inventory.slots.size(); i++) {
+//                // This loop also looks at the items in the brewing stand, which is fine!
+//                ItemStack stack=inventory.getSlot(i).getStack();
+//                var potionType = getPotion(stack);
+//                if (!stack.isEmpty() && potionType.isPresent()) {
+//                    BrewingRecipe newRecipe;
+//                    for (BrewingRecipe br: itemRecipes) {
+//                        if (br.getInputPotion().getItem() == stack.getItem()) {
+//                            // This potion item can be converted to a different item.
+//                            // Ignore whether or not we have the ingredient,
+//                            // this will be taken care of in the same way as other recipes
+//                            var input = PotionContentsComponent.createStack(br.getInputPotion().getItem(), potionType.get());
+//                            var output = PotionContentsComponent.createStack(br.getResult(null).getItem(), potionType.get());
+//                            possibleItemRecipes.add(newRecipe = new BrewingRecipe(false, input, br.getIngredient(), output));
+//                            LOGGER.log(level, "adding recipe "+newRecipe.toString());
+//                        }
+//                    }
+//                    for (BrewingRecipe br: potionRecipes) {
+//                        if (getPotion(br.getInputPotion()) == potionType) {
+//                            var input = PotionContentsComponent.createStack(stack.getItem(), potionType.get());
+//                            var output = PotionContentsComponent.createStack(stack.getItem(), getPotion(br.getResult(null)).get());
+//                            possiblePotionRecipes.add(newRecipe = new BrewingRecipe(true, input, br.getIngredient(), output));
+//                            LOGGER.log(level, "adding recipe "+newRecipe.toString());
+//                        }
+//                    }
+//                }
+//            }
+//            recipes.addAll(possibleItemRecipes);
+//            recipes.addAll(possiblePotionRecipes);
+//        } else {
             recipes.addAll(player.getWorld().getRecipeManager().values().stream().map( x -> x.value()).toList());
 // disabled for 1.19            recipes.addAll(LocalRecipeManager.getInstance().values());
             if (wantedRecipeType == RecipeType.CRAFTING && ConfigurationHandler.getAllowGeneratedRecipes()) {
                 recipes.addAll(InventoryRecipeScanner.findUnusualRecipes(inventory, firstInventorySlotNo));
             }
-        }
+//        }
 
         /* In 1.20 the creative tabs don't exist until we do this ... */
         ItemGroups.updateDisplayContext(player.networkHandler.getEnabledFeatures(), true, player.getWorld().getRegistryManager());
@@ -415,8 +408,8 @@ public class RecipeBook {
                     } else {
                         category = I18n.translate("easiercrafting.category.blocks");
                     }
-                } else if (wantedRecipeType == BrewingRecipe.recipeType) {
-                    category=((BrewingRecipe)recipe).getCategory();
+//                } else if (wantedRecipeType == BrewingRecipe.recipeType) {
+//                    category=((BrewingRecipe)recipe).getCategory();
                 } else {
                     category=I18n.translate(tab.getDisplayName().getString(), new Object[0]);
                 }
@@ -615,9 +608,9 @@ public class RecipeBook {
 */
 
 /*        LOGGER.log(level, "Check for "+(recipe.isItemRecipe() ? "Item recipe " : "Potion recipe ")+
-                PotionUtil.getPotion(recipe.getOutput()).getName(recipe.getOutput().getItem().getName().getString()+" ")+
+                getPotion(recipe.getOutput()).getName(recipe.getOutput().getItem().getName().getString()+" ")+
                 " from "+
-                PotionUtil.getPotion(inputPotionStack).getName(inputPotionStack.getItem().getName().getString()+" ")+
+                getPotion(inputPotionStack).getName(inputPotionStack.getItem().getName().getString()+" ")+
                 " and "+
                 ingredient.getName().getString()); */
         // check if the brewing stand has a usable input potion
@@ -626,7 +619,7 @@ public class RecipeBook {
             if (recipe.isItemRecipe()) {
                 haveInputPotion |= (inventoryItemStack.getItem() == inputPotionStack.getItem());
             } else {
-                haveInputPotion |= PotionUtil.getPotion(inventoryItemStack) == PotionUtil.getPotion(inputPotionStack);
+                haveInputPotion |= getPotion(inventoryItemStack) == getPotion(inputPotionStack);
             }
             if (haveInputPotion) {
                 break;
@@ -655,8 +648,8 @@ public class RecipeBook {
 //                LOGGER.log(Level.TRACE, "item recipe compare "+inventoryItemStack.getItem()+" to "+inputPotionStack.getItem());
                 haveInputPotion |= (inventoryItemStack.getItem() == inputPotionStack.getItem());
             } else {
-//                LOGGER.log(Level.TRACE, "potion recipe compare "+PotionUtil.getPotion(inventoryItemStack).getName("")+" to "+PotionUtil.getPotion(inputPotionStack).getName(""));
-                haveInputPotion |= (PotionUtil.getPotion(inventoryItemStack) == PotionUtil.getPotion(inputPotionStack));
+//                LOGGER.log(Level.TRACE, "potion recipe compare "+getPotion(inventoryItemStack).getName("")+" to "+getPotion(inputPotionStack).getName(""));
+                haveInputPotion |= (getPotion(inventoryItemStack) == getPotion(inputPotionStack));
             }
             if (inventoryItemStack.getItem() == ingredient) {
                 haveIngredient = true;
@@ -696,11 +689,11 @@ public class RecipeBook {
         if (underMouse==null)
             return;
 
-        if (underMouse.getType() == BrewingRecipe.recipeType) {
-            // this is so different from other containers, we handle it now and return
-            fillBrewingStandSlots((BrewingRecipe)underMouse);
-            return;
-        }
+//        if (underMouse.getType() == BrewingRecipe.recipeType) {
+//            // this is so different from other containers, we handle it now and return
+//            fillBrewingStandSlots((BrewingRecipe)underMouse);
+//            return;
+//        }
 
 //        do {
             // Do nothing if the grid isn't empty.
@@ -843,7 +836,7 @@ public class RecipeBook {
             ItemStack slotcontent=invitem.getStack();
             if (slotcontent.getItem() == repairRecipe.getItem()
             &&  slotcontent.getDamage()>0
-            &&  slotcontent.getEnchantments().size() <= ConfigurationHandler.getMaxEnchantsAllowedForRepair()
+            &&  slotcontent.getEnchantments().getSize() <= ConfigurationHandler.getMaxEnchantsAllowedForRepair()
             ) {
                 if (bestItemSlot==-1)
                     bestItemSlot=worstItemSlot=slot;
@@ -889,7 +882,7 @@ public class RecipeBook {
                 ItemStack inventoryItemStack = container.getSlot(slot+firstInventorySlotNo).getStack();
                 if (inventoryItemStack.isEmpty())
                     continue;
-                boolean matches = (PotionUtil.getPotion(inventoryItemStack) == PotionUtil.getPotion(inputPotionStack));
+                boolean matches = (getPotion(inventoryItemStack) == getPotion(inputPotionStack));
 //                if (recipe.isItemRecipe()) {
                     matches &= (inventoryItemStack.getItem() == inputPotionStack.getItem());
 //                }
@@ -939,21 +932,21 @@ public class RecipeBook {
 
         boolean tagForbidsItem = false;
 
-        NbtCompound tag = inventoryItem.getNbt();
-        if (tag != null) {
-            Set<String> keys;
-            if ((keys = tag.getKeys()) != null) {
-                for (String tagName: keys) {
-                    if (tagName.equals("Damage") && tag.getInt(tagName) == 0) {
-                        // A damage tag that has "no damage" doesn't prevent using the item
-                    } else if (tagName.equals("BlockEntityTag") && Block.getBlockFromItem(inventoryItem.getItem()) instanceof ShulkerBoxBlock) {
-                        // Shulker boxes can be dyed even if they have contents
-                    } else {
-                        tagForbidsItem = true;
-                    }
-                }
-            }
-        }
+//        NbtCompound tag = inventoryItem.getComponents().stream().forEach(component -> com);
+//        if (tag != null) {
+//            Set<String> keys;
+//            if ((keys = tag.getKeys()) != null) {
+//                for (String tagName: keys) {
+//                    if (tagName.equals("Damage") && tag.getInt(tagName) == 0) {
+//                        // A damage tag that has "no damage" doesn't prevent using the item
+//                    } else if (tagName.equals("BlockEntityTag") && Block.getBlockFromItem(inventoryItem.getItem()) instanceof ShulkerBoxBlock) {
+//                        // Shulker boxes can be dyed even if they have contents
+//                    } else {
+//                        tagForbidsItem = true;
+//                    }
+//                }
+//            }
+//        } TODO kijken hoe dit gefixed kan worden
         
         if (!tagForbidsItem && recipeComponent.test(inventoryItem))
             return true;
@@ -963,11 +956,11 @@ public class RecipeBook {
         if (inventoryItem.getItem()!=Items.LINGERING_POTION)
             return false;
 
-        Potion neededType = PotionUtil.getPotion(inventoryItem);
+        Potion neededType = getPotion(inventoryItem).get().value();
         ItemStack[] possiblePotions = recipeComponent.getMatchingStacks();
         for (ItemStack stack: possiblePotions) {
             // LOGGER.info("in lingering potion check, component = "+recipeComponent.getMatchingStacksClient()[0].getTranslationKey()+", invItem = "+inventoryItem.getTranslationKey());
-            if (PotionUtil.getPotion(stack) == neededType && recipeComponent.test(inventoryItem)) {
+            if (getPotion(stack).get().value() == neededType && recipeComponent.test(inventoryItem)) {
                 return true;
             }
         }
@@ -1009,5 +1002,9 @@ public class RecipeBook {
     
     public void slotClick(int slot, int mouseButton, SlotActionType clickType) {
         ((SlotClickAccepter)screen).slotClick(slot, mouseButton, clickType);
+    }
+
+    private Optional<RegistryEntry<Potion>> getPotion(ItemStack stack) {
+        return stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT).potion();
     }
 }

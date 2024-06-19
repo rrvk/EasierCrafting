@@ -15,6 +15,7 @@ import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
@@ -75,7 +76,7 @@ public class LoomRecipe implements Recipe {
     }
 
     @Override
-    public ItemStack craft(Inventory inv, DynamicRegistryManager registryManager) {
+    public ItemStack craft(Inventory inv, RegistryWrapper.WrapperLookup lookup) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -85,25 +86,25 @@ public class LoomRecipe implements Recipe {
     }
 
     @Override
-    public ItemStack getResult(DynamicRegistryManager registryManager) {
+    public ItemStack getResult(RegistryWrapper.WrapperLookup registriesLookup) {
         if (MinecraftClient.getInstance().currentScreen instanceof ExtendedGuiLoom) {
             ExtendedGuiLoom screen = (ExtendedGuiLoom) MinecraftClient.getInstance().currentScreen;
             ItemStack bannerStack = screen.getBannerItemStack();
             // ItemStack bannerStack = new ItemStack(new WallBannerBlock(DyeColor.byId(screen.getColor(0)),
             //         Block.Settings.of(Material.WOOD)).asItem());
-            NbtCompound compoundTag = bannerStack.getOrCreateSubNbt("BlockEntityTag");
-            NbtList patterns;
-            if (compoundTag.contains("Patterns", 9)) {
-               patterns = compoundTag.getList("Patterns", 10);
-            } else {
-               patterns = new NbtList();
-               compoundTag.put("Patterns", patterns);
-            }            
+//            NbtCompound compoundTag = bannerStack.getOrCreateSubNbt("BlockEntityTag");
+//            NbtList patterns;
+//            if (compoundTag.contains("Patterns", 9)) {
+//               patterns = compoundTag.getList("Patterns", 10);
+//            } else {
+//               patterns = new NbtList();
+//               compoundTag.put("Patterns", patterns);
+//            }
             for (int i=1; i<steps.size(); i++) {            // start at 1 as [0] is the banner itself
                 NbtCompound patternElement = new NbtCompound();
                 patternElement.putString("Pattern", steps.get(i).pattern);
                 patternElement.putInt("Color", screen.getColor(steps.get(i).colorCode-'A'));
-                patterns.add(patternElement);
+//                patterns.add(patternElement);
             }
             return bannerStack;
         } else {

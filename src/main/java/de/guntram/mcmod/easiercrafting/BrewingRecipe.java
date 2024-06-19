@@ -3,12 +3,12 @@ package de.guntram.mcmod.easiercrafting;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.PotionUtil;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
@@ -32,7 +32,7 @@ public class BrewingRecipe<C extends Inventory> implements Recipe<C> {
     }
 
     @Override
-    public ItemStack craft(C inv, DynamicRegistryManager registryManager) {
+    public ItemStack craft(C inv, RegistryWrapper.WrapperLookup registryManager) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -42,7 +42,7 @@ public class BrewingRecipe<C extends Inventory> implements Recipe<C> {
     }
 
     @Override
-    public ItemStack getResult(DynamicRegistryManager registryManager) {
+    public ItemStack getResult(RegistryWrapper.WrapperLookup registryManager) {
         return outputPotion;
     }
 
@@ -53,11 +53,11 @@ public class BrewingRecipe<C extends Inventory> implements Recipe<C> {
         ingredients.add(Ingredient.ofStacks(ingredient));
         return ingredients;
     }
-    
+
     public ItemStack getInputPotion() {
         return inputPotion;
     }
-    
+
     public ItemStack getIngredient() {
         return ingredient;
     }
@@ -83,19 +83,19 @@ public class BrewingRecipe<C extends Inventory> implements Recipe<C> {
     public boolean isItemRecipe() {
         return !isPotionRecipe;
     }
-    
+
     @Override
     public String toString () {
         StringBuilder result=new StringBuilder();
         result.append(getCategory())
                 .append(": input ")
                 .append(inputPotion.getItem().getName().getString()) . append("/")
-                .append(PotionUtil.getPotion(inputPotion).finishTranslationKey(""))
+//                .append(PotionUtil.getPotion(inputPotion).finishTranslationKey(""))
                 .append(" with ingredient ")
                 .append(ingredient.getItem().getName().getString())
                 .append(" yields ")
                 .append(outputPotion.getItem().getName().getString()) . append("/")
-                .append(PotionUtil.getPotion(outputPotion).finishTranslationKey(""))
+//                .append(PotionUtil.getPotion(outputPotion).finishTranslationKey(""))
                 ;
         return result.toString();
     }
