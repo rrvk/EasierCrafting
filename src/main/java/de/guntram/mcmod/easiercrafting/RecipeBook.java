@@ -118,7 +118,7 @@ public class RecipeBook {
         }
 
         if (ARROWS ==null) {
-            ARROWS =new Identifier(EasierCrafting.MODID, "textures/arrows.png");
+            ARROWS =Identifier.of(EasierCrafting.MODID, "textures/arrows.png");
         }
     }
     

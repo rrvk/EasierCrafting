@@ -12,6 +12,7 @@ import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
+import net.minecraft.recipe.input.RecipeInput;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
@@ -22,7 +23,7 @@ import net.minecraft.world.World;
  *
  * @author gbl
  */
-public class RepairRecipe<C  extends Inventory> implements Recipe<C> {
+public class RepairRecipe<C extends RecipeInput> implements Recipe<C> {
     
     private Item item;
 

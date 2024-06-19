@@ -39,7 +39,7 @@ sourceCompatibility = 21
 targetCompatibility = 21
 
 ext.Versions = new Properties()
-Versions.load(file("Versionfiles/mcversion-1.20.6.properties").newReader())
+Versions.load(file("Versionfiles/mcversion-1.21.0.properties").newReader())
 
 archivesBaseName = "easiercrafting"
 ext.projectVersion = "1.7.1"
@@ -67,7 +67,7 @@ dependencies {
     compileOnly "me.shedaniel:RoughlyEnoughItems-fabric:6.0.262-alpha"
     modImplementation "de.guntram.mcmod:GBfabrictools:${Versions['gbfabrictools_version']}"
     include    "de.guntram.mcmod:GBfabrictools:${Versions['gbfabrictools_version']}"
-    modImplementation "de.guntram.mcmod:crowdin-translate:${Versions['crowdintranslate_version']}"
+//    modImplementation "de.guntram.mcmod:crowdin-translate:${Versions['crowdintranslate_version']}"
     include "de.guntram.mcmod:crowdin-translate:${Versions['crowdintranslate_version']}"
 }
 

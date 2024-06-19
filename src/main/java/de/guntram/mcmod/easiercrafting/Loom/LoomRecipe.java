@@ -14,6 +14,7 @@ import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
+import net.minecraft.recipe.input.RecipeInput;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.DyeColor;
@@ -71,12 +72,12 @@ public class LoomRecipe implements Recipe {
     }
 
     @Override
-    public boolean matches(Inventory inv, World world) {
+    public boolean matches(RecipeInput input, World world) {
         return true;
     }
 
     @Override
-    public ItemStack craft(Inventory inv, RegistryWrapper.WrapperLookup lookup) {
+    public ItemStack craft(RecipeInput input, RegistryWrapper.WrapperLookup lookup) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
